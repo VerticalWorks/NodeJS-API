@@ -8,11 +8,12 @@ weatherRouter.get('/weather', function (req: any, res: any) {
   //I would do some general query housekeeping here
   //perhaps checking for edge case combos before making the call :)
   
-  axios.get(`https://api.openweathermap.org/data/2.5/onecall?lat=${req.query.lat}&lon=${req.query.lon}&exclude=${req.query.exclude}&appid=${weatherToken}`)
+  axios.get(`https://api.openweathermap.org/data/2.5/onecall?lat=${req.query.lat}&lon=${req.query.lon}&exclude=${req.query.exclude}&appid=${weatherToken}&units=${'imperial'}`)
   .then(function (response){
-    response.data.current.banoWeatherEnglishTemp = createEnglishTemp(response.data.current.temp);
-    response.data.current.banoWeatherWeatherCondition = response.data.current.weather[0].main;
-    response.data.current.banoWeatherAlerts = getAlertEvent(response.data);
+    response.data['bano_data'] = {};
+    response.data.bano_data['temp_summary'] = createEnglishTemp(response.data.current.temp);
+    response.data.bano_data['weather_status'] = response.data.current.weather[0].main;
+    response.data.bano_data['alerts'] = getAlertEvent(response.data);
     res.send(response.data);
   })
   .catch(function (error) {
@@ -27,6 +28,9 @@ weatherRouter.get('/', function (req: any, res: any) {
 
 function createEnglishTemp(temp: number): string {
   
+  if (temp === undefined){
+    return "na";
+  }
   if (temp <= 30){
     return "Cold";
   }
